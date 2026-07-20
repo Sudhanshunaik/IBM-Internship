@@ -1,4 +1,4 @@
-name: rural-tutor
+name: guru
 version: 1.0.0
 description: "AI-powered personalized learning agent for rural students. Adapts content based on student progress and comprehension. Supports NCERT curriculum (Class 6-12). Includes adaptive lessons, quiz generator, progress tracking, and daily practice cron jobs."
 hermes_requires: ">=0.18.0"

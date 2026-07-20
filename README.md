@@ -18,7 +18,7 @@ This project is powered by the **Hermes Agent framework** (by Nous Research):
 - **Core Engine:** Routes requests to advanced Large Language Models (LLMs) via external API providers.
 - **Execution Backend:** Utilizes a secure, sandboxed Docker environment (`python3.11-nodejs20`) to safely execute code and terminal commands.
 - **State Management:** Manages concurrency, sessions, and memory using local SQLite databases (`state.db`, `projects.db`).
-- **Profile Configuration:** The behavior of "Guru" is strictly defined in `profiles/rural-tutor/SOUL.md`.
+- **Profile Configuration:** The behavior of "Guru" is strictly defined in `profiles/guru/SOUL.md`.
 
 ## 🛠️ Installation & Setup
 
@@ -39,7 +39,7 @@ This project is powered by the **Hermes Agent framework** (by Nous Research):
 4. **Run the Rural Tutor:**
    - Start the Hermes agent using the Guru profile:
    ```bash
-   hermes --profile rural-tutor
+   hermes --profile guru
    ```
 
 ## 🚀 Impact
