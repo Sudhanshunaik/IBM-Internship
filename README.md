@@ -20,6 +20,28 @@ This project is powered by the **Hermes Agent framework** (by Nous Research):
 - **State Management:** Manages concurrency, sessions, and memory using local SQLite databases (`state.db`, `projects.db`).
 - **Profile Configuration:** The behavior of "Guru" is strictly defined in `profiles/rural-tutor/SOUL.md`.
 
+## 🛠️ Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Sudhanshunaik/IBM-Internship.git
+   cd IBM-Internship
+   ```
+
+2. **Prerequisites:**
+   - Ensure you have **Docker** installed and running (used for the secure execution sandbox).
+   - Ensure the Hermes CLI is installed on your system. If not, you can run the included `hermes-setup.exe` (Windows).
+
+3. **Configuration:**
+   - Create a `.env` file in the root directory.
+   - Add your necessary API keys for your LLM provider (e.g., Anthropic, OpenAI, or Minimax).
+
+4. **Run the Rural Tutor:**
+   - Start the Hermes agent using the Guru profile:
+   ```bash
+   hermes --profile rural-tutor
+   ```
+
 ## 🚀 Impact
 Project Guru brings world-class, personalized tutoring to remote areas, scaling quality education effortlessly and fostering a growth mindset in every student.
 
