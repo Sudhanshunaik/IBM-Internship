@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mern-3dviz.local/schemas/RegisterRequest.json",
+  "title": "RegisterRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["email", "username", "password"],
+  "properties": {
+    "email":    { "type": "string", "format": "email", "minLength": 3, "maxLength": 254 },
+    "username": { "type": "string", "minLength": 3, "maxLength": 32, "pattern": "^[a-zA-Z0-9_-]+$" },
+    "password": { "type": "string", "minLength": 8, "maxLength": 128 }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "updated_at": "2026-07-20T20:35:13.709696",
+  "platforms": {
+    "telegram": [
+      {
+        "id": "8384065184",
+        "name": "Maclyn Fernandes",
+        "type": "dm",
+        "thread_id": null
+      },
+      {
+        "id": "5043038484",
+        "name": "Sudhanshu Naik",
+        "type": "dm",
+        "thread_id": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "adaptive-lesson": {
+    "archived_at": null,
+    "created_at": "2026-07-20T14:12:50.567071+00:00",
+    "created_by": null,
+    "last_patched_at": null,
+    "last_used_at": "2026-07-20T14:12:50.591540+00:00",
+    "last_viewed_at": "2026-07-20T14:12:50.567071+00:00",
+    "patch_count": 0,
+    "pinned": false,
+    "state": "active",
+    "use_count": 1,
+    "view_count": 1
+  },
+  "learning-gap-analyzer": {
+    "archived_at": null,
+    "created_at": "2026-07-20T14:12:48.545974+00:00",
+    "created_by": null,
+    "last_patched_at": null,
+    "last_used_at": "2026-07-20T14:12:48.559498+00:00",
+    "last_viewed_at": "2026-07-20T14:12:48.545974+00:00",
+    "patch_count": 0,
+    "pinned": false,
+    "state": "active",
+    "use_count": 1,
+    "view_count": 1
+  },
+  "progress-tracker": {
+    "archived_at": null,
+    "created_at": "2026-07-20T14:12:49.556256+00:00",
+    "created_by": null,
+    "last_patched_at": null,
+    "last_used_at": "2026-07-20T14:12:49.579865+00:00",
+    "last_viewed_at": "2026-07-20T14:12:49.556256+00:00",
+    "patch_count": 0,
+    "pinned": false,
+    "state": "active",
+    "use_count": 1,
+    "view_count": 1
+  },
+  "quiz-generator": {
+    "archived_at": null,
+    "created_at": "2026-07-20T13:25:39.049487+00:00",
+    "created_by": null,
+    "last_patched_at": null,
+    "last_used_at": "2026-07-20T13:25:39.064728+00:00",
+    "last_viewed_at": "2026-07-20T13:25:39.049487+00:00",
+    "patch_count": 0,
+    "pinned": false,
+    "state": "active",
+    "use_count": 1,
+    "view_count": 1
+  }
+}

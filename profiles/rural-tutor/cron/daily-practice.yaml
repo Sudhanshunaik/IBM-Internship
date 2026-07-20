@@ -1,0 +1,25 @@
+schedule: "0 7 * * *"
+name: daily-practice
+description: Sends a personalized daily practice question every morning based on the student's weakest topic from memory.
+prompt: |
+  Check the student's learning history in your memory. 
+  Find their weakest topic (the one with most recent "needs review" or lowest quiz score).
+  Generate ONE practice question from that topic.
+  
+  Format your message like this:
+  
+  🌅 Good morning! Here's your daily brain exercise!
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  📚 Today's topic: [Topic Name]
+  
+  [Question here]
+  
+  A) ...
+  B) ...
+  C) ...
+  D) ...
+  
+  💡 Take your time and reply with your answer!
+  (Reply 'skip' if you're busy today — no worries!)
+  
+  Keep the message short and mobile-friendly.

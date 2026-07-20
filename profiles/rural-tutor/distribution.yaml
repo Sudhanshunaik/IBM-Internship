@@ -1,0 +1,19 @@
+name: rural-tutor
+version: 1.0.0
+description: "AI-powered personalized learning agent for rural students. Adapts content based on student progress and comprehension. Supports NCERT curriculum (Class 6-12). Includes adaptive lessons, quiz generator, progress tracking, and daily practice cron jobs."
+hermes_requires: ">=0.18.0"
+author: "IBM SkillsBuild Rural Education Initiative"
+license: "MIT"
+
+env_requires:
+  - name: OPENAI_API_KEY
+    description: "API key for the LLM (OpenAI compatible). Also works with Nous Portal, OpenRouter, or any OpenAI-compatible endpoint."
+    required: true
+  - name: TELEGRAM_BOT_TOKEN
+    description: "Telegram bot token for student access via mobile. Get one free from @BotFather on Telegram."
+    required: false
+    default: ""
+  - name: WHATSAPP_TOKEN
+    description: "WhatsApp Business API token (via Twilio or Meta). Optional alternative to Telegram."
+    required: false
+    default: ""

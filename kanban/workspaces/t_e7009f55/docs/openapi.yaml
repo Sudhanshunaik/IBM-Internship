@@ -1,0 +1,511 @@
+openapi: 3.0.3
+info:
+  title: MERN 3D Visualization Platform API
+  version: 0.1.0
+  description: |
+    REST + WebSocket API for the MERN-stack 3D data visualization platform.
+
+    Auth: JWT bearer access token in `Authorization: Bearer *** *    Refresh token in an `httpOnly` cookie (`refresh_token`) set by the server.
+servers:
+  - url: http://localhost:4000
+    description: Local development
+
+tags:
+  - name: auth
+  - name: scenes
+  - name: datasources
+  - name: datapoints
+  - name: health
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:       { type: string }
+        email:     { type: string, format: email }
+        username:  { type: string }
+        role:      { type: string, enum: [user, admin] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [_id, email, username, role, createdAt, updatedAt]
+
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:  { type: string }
+        refreshToken: { type: string }
+        expiresIn:    { type: integer, description: seconds until accessToken expires }
+      required: [accessToken, refreshToken, expiresIn]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:   { $ref: '#/components/schemas/User' }
+        tokens: { $ref: '#/components/schemas/AuthTokens' }
+      required: [user, tokens]
+
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required: [email, username, password]
+      properties:
+        email:    { type: string, format: email, minLength: 3, maxLength: 254 }
+        username: { type: string, minLength: 3, maxLength: 32, pattern: '^[a-zA-Z0-9_-]+$' }
+        password: { type: string, minLength: 8, maxLength: 128 }
+
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email:    { type: string, format: email }
+        password: { type: string, minLength: 1 }
+
+    RefreshRequest:
+      type: object
+      additionalProperties: false
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string, minLength: 20 }
+
+    Camera:
+      type: object
+      properties:
+        position: { type: array, minItems: 3, maxItems: 3, items: { type: number } }
+        target:   { type: array, minItems: 3, maxItems: 3, items: { type: number } }
+        fov:      { type: number, minimum: 1, maximum: 179 }
+
+    Scene:
+      type: object
+      properties:
+        _id:            { type: string }
+        ownerId:        { type: string }
+        title:          { type: string }
+        description:    { type: string }
+        dataSourceIds:  { type: array, items: { type: string } }
+        camera:         { $ref: '#/components/schemas/Camera' }
+        isPublic:       { type: boolean }
+        createdAt:      { type: string, format: date-time }
+        updatedAt:      { type: string, format: date-time }
+      required: [_id, ownerId, title, dataSourceIds, camera, isPublic, createdAt, updatedAt]
+
+    CreateSceneRequest:
+      type: object
+      additionalProperties: false
+      required: [title]
+      properties:
+        title:         { type: string, minLength: 1, maxLength: 120 }
+        description:   { type: string, maxLength: 2000 }
+        dataSourceIds: { type: array, items: { type: string }, maxItems: 32 }
+        camera:        { $ref: '#/components/schemas/Camera' }
+        isPublic:      { type: boolean }
+
+    UpdateSceneRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:         { type: string, minLength: 1, maxLength: 120 }
+        description:   { type: string, maxLength: 2000 }
+        dataSourceIds: { type: array, items: { type: string }, maxItems: 32 }
+        camera:        { $ref: '#/components/schemas/Camera' }
+        isPublic:      { type: boolean }
+
+    DataSource:
+      type: object
+      properties:
+        _id:            { type: string }
+        ownerId:        { type: string }
+        name:           { type: string }
+        kind:           { type: string, enum: [sensor, api-poll, manual] }
+        pollIntervalMs: { type: integer, minimum: 100 }
+        endpoint:       { type: string }
+        createdAt:      { type: string, format: date-time }
+        updatedAt:      { type: string, format: date-time }
+      required: [_id, ownerId, name, kind, createdAt, updatedAt]
+
+    CreateDataSourceRequest:
+      type: object
+      additionalProperties: false
+      required: [name, kind]
+      properties:
+        name:           { type: string, minLength: 1, maxLength: 80 }
+        kind:           { type: string, enum: [sensor, api-poll, manual] }
+        pollIntervalMs: { type: integer, minimum: 100, maximum: 3600000 }
+        endpoint:       { type: string, format: uri, maxLength: 2048 }
+
+    DataPoint:
+      type: object
+      properties:
+        _id:          { type: string }
+        dataSourceId: { type: string }
+        x:            { type: number }
+        y:            { type: number }
+        z:            { type: number }
+        value:        { type: number }
+        meta:         { type: object, additionalProperties: true }
+        timestamp:    { type: string, format: date-time }
+      required: [_id, dataSourceId, x, y, z, timestamp]
+
+    PageMeta:
+      type: object
+      properties:
+        page:     { type: integer }
+        pageSize: { type: integer }
+        total:    { type: integer }
+      required: [page, pageSize, total]
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:    { type: string }
+            message: { type: string }
+            details: { type: object, additionalProperties: true }
+          required: [code, message]
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid auth
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    ValidationError:
+      description: Request payload failed validation
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+
+paths:
+  /api/health:
+    get:
+      tags: [health]
+      summary: Liveness + dependency probe
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:        { type: string, enum: [ok, degraded] }
+                  uptimeSeconds: { type: integer }
+                  mongo:         { type: string, enum: [connected, disconnected] }
+                  socket:        { type: string, enum: [ok, down] }
+                  version:       { type: string }
+                  timestamp:     { type: string, format: date-time }
+
+  /api/auth/register:
+    post:
+      tags: [auth]
+      summary: Create a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+          headers:
+            Set-Cookie:
+              description: Sets the `refresh_token` httpOnly cookie
+              schema: { type: string }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+  /api/auth/login:
+    post:
+      tags: [auth]
+      summary: Exchange credentials for JWT tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/auth/refresh:
+    post:
+      tags: [auth]
+      summary: Exchange a refresh token for a new access token
+      description: |
+        Reads `refresh_token` from the httpOnly cookie if `refreshToken` is not in the body.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        '200':
+          description: New tokens issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens: { $ref: '#/components/schemas/AuthTokens' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/auth/logout:
+    post:
+      tags: [auth]
+      summary: Invalidate refresh tokens
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Logged out }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/auth/me:
+    get:
+      tags: [auth]
+      summary: Current authenticated user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/scenes:
+    get:
+      tags: [scenes]
+      summary: List scenes visible to caller
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, default: 20, maximum: 100 }
+        - in: query
+          name: ownerId
+          schema: { type: string }
+          description: Filter by owner. Requires auth.
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:    { type: array, items: { $ref: '#/components/schemas/Scene' } }
+                  page:     { $ref: '#/components/schemas/PageMeta' }
+    post:
+      tags: [scenes]
+      summary: Create a scene
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateSceneRequest' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scene: { $ref: '#/components/schemas/Scene' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/scenes/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    get:
+      tags: [scenes]
+      summary: Get a scene
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scene: { $ref: '#/components/schemas/Scene' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [scenes]
+      summary: Update a scene (owner/admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateSceneRequest' }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scene: { $ref: '#/components/schemas/Scene' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Not owner or admin
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [scenes]
+      summary: Delete a scene (owner/admin)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403':
+          description: Not owner or admin
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+  /api/datasources:
+    get:
+      tags: [datasources]
+      summary: List caller's data sources
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, default: 20, maximum: 100 }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/DataSource' } }
+                  page:  { $ref: '#/components/schemas/PageMeta' }
+    post:
+      tags: [datasources]
+      summary: Create a data source
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateDataSourceRequest' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dataSource: { $ref: '#/components/schemas/DataSource' }
+
+  /api/datasources/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    delete:
+      tags: [datasources]
+      summary: Delete a data source
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/datapoints:
+    get:
+      tags: [datapoints]
+      summary: List data points
+      parameters:
+        - in: query
+          name: dataSourceId
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, default: 100, maximum: 500 }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/DataPoint' } }
+                  page:  { $ref: '#/components/schemas/PageMeta' }
+    post:
+      tags: [datapoints]
+      summary: Append a single data point (auth required)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dataSourceId, x, y, z]
+              properties:
+                dataSourceId: { type: string }
+                x:            { type: number }
+                y:            { type: number }
+                z:            { type: number }
+                value:        { type: number }
+                meta:         { type: object, additionalProperties: true }
+      responses:
+        '201':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dataPoint: { $ref: '#/components/schemas/DataPoint' }
+        '401': { $ref: '#/components/responses/Unauthorized' }

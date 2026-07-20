@@ -1,0 +1,16 @@
+model:
+  provider: deepseek
+  default: deepseek-v4-flash
+  base_url: https://api.deepseek.com/v1
+compression:
+  enabled: true
+  threshold: 0.85
+  summary_model: ''
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  write_approval: false
+  memory_char_limit: 2200
+  user_char_limit: 1375
+_config_version: 33
+TELEGRAM_HOME_CHANNEL: 5043038484

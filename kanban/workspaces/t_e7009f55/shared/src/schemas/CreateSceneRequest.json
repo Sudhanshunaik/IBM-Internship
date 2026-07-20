@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mern-3dviz.local/schemas/CreateSceneRequest.json",
+  "title": "CreateSceneRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title"],
+  "properties": {
+    "title":       { "type": "string", "minLength": 1, "maxLength": 120 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "dataSourceIds": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-f0-9]{24}$" },
+      "maxItems": 32
+    },
+    "isPublic":    { "type": "boolean" },
+    "camera": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "position": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "number" } },
+        "target":   { "type": "array", "minItems": 3, "maxItems": 3, "items": { "type": "number" } },
+        "fov":      { "type": "number", "minimum": 1, "maximum": 179 }
+      }
+    }
+  }
+}

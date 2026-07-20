@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mern-3dviz.local/schemas/CreateDataSourceRequest.json",
+  "title": "CreateDataSourceRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "kind"],
+  "properties": {
+    "name":           { "type": "string", "minLength": 1, "maxLength": 80 },
+    "kind":           { "type": "string", "enum": ["sensor", "api-poll", "manual"] },
+    "pollIntervalMs": { "type": "integer", "minimum": 100, "maximum": 3600000 },
+    "endpoint":       { "type": "string", "format": "uri", "maxLength": 2048 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "api-poll" } } },
+      "then": {
+        "required": ["name", "kind", "endpoint", "pollIntervalMs"]
+      }
+    }
+  ]
+}
